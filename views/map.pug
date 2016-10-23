@@ -1,0 +1,15 @@
+extends layout
+block content
+    #map
+    script(type='text/javascript').
+        var osm = new ol.layer.Tile({source: new ol.source.OSM()});
+        var map = new ol.Map({
+            layers: [osm],
+            target: 'map',
+            controls: ol.control.defaults().extend([
+                new ol.control.ScaleLine({className: 'ol-scale-line', target: document.getElementById('scale-line')})
+            ]),
+            view: new ol.View({
+                center: ol.proj.transform([#{lng}, #{lat}], 'EPSG:4326', 'EPSG:3857'), zoom: 2
+            })
+        });
