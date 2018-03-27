@@ -1,12 +1,29 @@
 doctype html
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    link(rel='stylesheet', href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css')
-    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/ol3/3.19.0/ol.css')
-    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js')
-    script(src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js')
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/ol3/3.19.0/ol.js')
-  body
-    block content
+    head
+        title Select Features
+        link(rel='stylesheet', href='https://openlayers.org/en/v4.6.5/css/ol.css', type='text/css')
+        // The line below is only needed for old environments like Internet Explorer and Android 4.x
+        script(src='https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL')
+        script(src='https://openlayers.org/en/v4.6.5/build/ol.js')
+    style.
+        .ol-touch .rotate-north {
+        top: 80px;
+        }
+        .ol-mycontrol {
+        background-color: rgba(255, 255, 255, 0.4);
+        border-radius: 4px;
+        padding: 2px;
+        position: absolute;
+        width:300px;
+        top: 10px;
+        left:40px;
+        }      
+        #overlayMenu {
+          position: absolute;
+          z-index: 1;
+          top: 0px;
+          left: 0px;
+          }        
+    body
+        block content

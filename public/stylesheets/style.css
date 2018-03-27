@@ -39,3 +39,16 @@ a {
   margin-left:5px;
   top:-1px
 }
+
+.ol-touch .rotate-north {
+  top: 80px;
+}
+.ol-mycontrol {
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+    padding: 2px;
+    position: absolute;
+    width:300px;
+    top: 5px;
+    left:40px;
+}

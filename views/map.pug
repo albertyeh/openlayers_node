@@ -1,15 +1,150 @@
 extends layout
 block content
-    #map
-    script(type='text/javascript').
-        var osm = new ol.layer.Tile({source: new ol.source.OSM()});
-        var map = new ol.Map({
-            layers: [osm],
-            target: 'map',
-            controls: ol.control.defaults().extend([
-                new ol.control.ScaleLine({className: 'ol-scale-line', target: document.getElementById('scale-line')})
-            ]),
-            view: new ol.View({
-                center: ol.proj.transform([#{lng}, #{lat}], 'EPSG:4326', 'EPSG:3857'), zoom: 2
+    .row-fluid
+        .span12
+            //#map.map
+            #map(style='width:100%; height:100%; z-index: 0')
+                #overlayMenu(style='z-index:9999')            
+    form.form-inline
+        label Action type  
+        select#type.form-control
+            option(value='click', selected='') Click
+            option(value='singleclick') Single-click
+            option(value='pointermove') Hover
+            option(value='altclick') Alt+Click
+            option(value='none') None
+        span#status  0 selected features
+    script.
+        /**
+        * Define a namespace for the application.
+        */
+        window.app = {};
+        var app = window.app;
+        //
+        // Define CustomToolbarControl.
+        //
+        /**
+        * @constructor
+        * @extends {ol.control.Control}
+        * @param {Object=} opt_options Control options.
+        */
+        app.CustomToolbarControl = function(opt_options) {
+        var options = opt_options || {};
+        var button = document.createElement('button');
+        button.innerHTML = 'N';
+        button.onclick = function(e){
+            console.log(e);
+            alert(button.innerHTML);        
+        }        
+        var button1 = document.createElement('button');
+        button1.innerHTML = 'some button';
+        button1.onclick = function(e){
+            console.log(e);
+            alert(button1.innerHTML);        
+        }
+        var selectList = document.createElement("select");
+        selectList.id = "mySelect";
+        selectList.onchange = function(e){
+            console.log(e);
+            alert(this.value);
+        }
+        var array = ["layer1","layer2","layer3","layer4"];
+        for (var i = 0; i < array.length; i++) {
+            var option = document.createElement("option");
+            option.value = array[i];
+            option.text = array[i];
+            selectList.appendChild(option);
+        }
+        var this_ = this;
+        var handleRotateNorth = function(e) {
+            this_.getMap().getView().setRotation(0);
+        };
+        button.addEventListener('click', handleRotateNorth, false);
+        button.addEventListener('touchstart', handleRotateNorth, false);
+        var element = document.createElement('div');
+        element.className = 'ol-unselectable ol-mycontrol';
+        element.appendChild(button);
+        element.appendChild(button1);
+        element.appendChild(selectList);
+        ol.control.Control.call(this, {
+            element: element,
+            target: options.target
+        });
+        };
+        ol.inherits(app.CustomToolbarControl, ol.control.Control);
+        var raster = new ol.layer.Tile({
+            source: new ol.source.OSM()
+        });
+        var vector = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                url: 'https://openlayers.org/en/v4.6.5/examples/data/geojson/countries.geojson',
+                format: new ol.format.GeoJSON()
             })
         });
+           
+        var map = new ol.Map({
+            controls: ol.control.defaults({
+                    attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+                    collapsible: false
+                })
+            }).extend([
+                new app.CustomToolbarControl()
+            ]),        
+            layers: [raster, vector],
+            target: 'map',
+            view: new ol.View({
+                center: [0,0],
+                zoom: 5
+            })
+        });
+        
+        var select = null;  // ref to currently selected interaction
+        // select interaction working on "singleclick"
+        var selectSingleClick = new ol.interaction.Select();
+        // select interaction working on "click"
+        var selectClick = new ol.interaction.Select({
+            condition: ol.events.condition.click
+        });
+        // select interaction working on "pointermove"
+        var selectPointerMove = new ol.interaction.Select({
+            condition: ol.events.condition.pointerMove
+        });
+        var selectAltClick = new ol.interaction.Select({
+            condition: function(mapBrowserEvent) {
+                return ol.events.condition.click(mapBrowserEvent) &&
+                ol.events.condition.altKeyOnly(mapBrowserEvent);
+            }
+        });
+        var selectElement = document.getElementById('type');
+        var changeInteraction = function() {
+        if (select !== null) {
+            map.removeInteraction(select);
+        }
+        var value = selectElement.value;
+        if (value == 'singleclick') {
+            select = selectSingleClick;
+        } else if (value == 'click') {
+            select = selectClick;
+        } else if (value == 'pointermove') {
+            select = selectPointerMove;
+        } else if (value == 'altclick') {
+            select = selectAltClick;
+        } else {
+            select = null;
+        }
+        if (select !== null) {
+            map.addInteraction(select);
+            select.on('select', function(e) {
+                document.getElementById('status').innerHTML = '&nbsp;' +
+                e.target.getFeatures().getLength() +
+                ' selected features (last operation selected ' + e.selected.length +
+                ' and deselected ' + e.deselected.length + ' features)';
+                });
+            }
+        };
+        /**
+        * onchange callback on the select element.
+        */
+        selectElement.onchange = changeInteraction;
+        changeInteraction();
+    
