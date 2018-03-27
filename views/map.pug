@@ -93,11 +93,14 @@ block content
             layers: [raster, vector],
             target: 'map',
             view: new ol.View({
-                center: [0,0],
-                zoom: 5
+                // 设置地图中心范围
+                extent: [120, 20, 124, 31],
+                // 设置成都为地图中心
+                center: [121.5, 24.5],
+                projection: 'EPSG:4326',
+                zoom: 10
             })
         });
-        
         var select = null;  // ref to currently selected interaction
         // select interaction working on "singleclick"
         var selectSingleClick = new ol.interaction.Select();
